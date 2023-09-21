@@ -100,32 +100,41 @@ void lee_archivo (char *nombre_archivo, int orden){
       prob10s = cant10s/(float)(cant10s + cant11s);
       prob11s = cant11s/(float)(cant10s + cant11s);
    }
-  /* for(int j=0; j<posArchivo; j++){
+ /*  for(int j=0; j<posArchivo; j++){
       printf("%d", arrayDeBits[j]);
-   }
-   */
+   }*/
+   
    
    entropia = prob0s*log2(1/prob0s)+ prob1s*log2(1/prob1s);
 
-   printf("\n--orden 1--\n");
+ /*printf("\n--orden 1--\n");
    printf("La cantidad de 0 es: %d y su prob es: %.2f \n", cant0s,prob0s );
-   printf("La cantidad de 1 es: %d y su prob es: %.2f \n", cant1s, prob1s);
-   printf("--orden 2 --\nLa cantidad de 00 es: %d y su prob es: %.2f \n", cant00s, prob00s);
+   printf("La cantidad de 1 es: %d y su prob es: %.2f \n", cant1s, prob1s);*/
+   printf("Probabilidades condicionales:\nLa cantidad de 00 es: %d y su prob es: %.2f \n", cant00s, prob00s);
    printf("La cantidad de 01 es: %d y su prob es: %.2f \n", cant01s, prob01s);
    printf("La cantidad de 10 es: %d y su prob es: %.2f \n", cant10s, prob10s);
    printf("La cantidad de 11 es: %d y su prob es: %.2f \n\n", cant11s, prob11s);
    int exponente = orden-1;
-   
+   int total=0;
    if ( fabs(prob00s-prob10s) > tolerancia || fabs(prob01s-prob11s) > tolerancia){
-      printf("La fuente es memoria no nula\n");
-      for(int j=0; j<tamanoArchivo; j++){
-         for (int k=j; k<j+orden;k++){
-            if (arrayDeBits[k]){
+      printf("La fuente es memoria no nula y su entropia es: %.2f bits\n",entropia);
+      
+   }  
+   else{
+      printf("La fuente es memoria nula");
+      printf(" y su entropia es: %.2f bits\n ",entropia);
+      
+      printf("Probabilidades de orden %d:\n",orden);
+      int j=0;
+      while (j < tamanoArchivo){
+         for (int k=j; j<k+orden;j++){
+            if (arrayDeBits[j]){
                posArray+=pow(2,exponente);
             }
             exponente--;
          }
          exponente = orden-1;
+         total++;
          miArray[posArray]++;
          posArray=0;
    }
@@ -134,12 +143,21 @@ void lee_archivo (char *nombre_archivo, int orden){
       printf("%d\n",miArray[i]);
    }
 
-
-   }  
-   else{
-      printf("La fuente es memoria nula");
+   float entropiaSumada=0;
+   for (int p=0; p<tamano; p++){
+      if (miArray[p]!=0)
+      entropiaSumada+=(miArray[p]/(float)total)*log2(total/(float)miArray[p]);
    }
-   printf(" y su entropia es: %.2f bits\n ",entropia);
+
+
+   printf("\n");
+   printf("Entropia de orden %d (orden*entropia): %.2f\n",orden, orden*entropia);
+   printf("Entropia de orden %d (sumatoria de probs): %.2f", orden, entropiaSumada);
+
+
+
+   }
+   
 
    fclose(arch);
 
