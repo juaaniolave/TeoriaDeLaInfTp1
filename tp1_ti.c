@@ -36,14 +36,14 @@ void lee_archivo (char *nombre_archivo, int orden){
    unsigned int cant11s  = 0;
    float tolerancia = 0.05;
    unsigned int cantTot = 0;
-   float prob0s, prob1s, prob00s, prob01s, prob10s, prob11s, entropia = 0;
+   float prob0s, prob1s, prob00s, prob01s, prob10s, prob11s, entropia = 0, X, Y;
    unsigned char byte, bit, bitAnterior=0;
    long tamanoArchivo;
    long posArchivo=0;
    int *miArray;
    int tamano = pow(2,orden);
    int posArray=0;
-  // nombre_archivo = "tp1_sample0.bin";
+  nombre_archivo = "tp1_sample8.bin";
    FILE* arch = fopen(nombre_archivo,"rb");
    // Asignar memoria dinámica para el array
    miArray = (int *)malloc(tamano* sizeof(int));
@@ -67,22 +67,24 @@ void lee_archivo (char *nombre_archivo, int orden){
    unsigned char *arrayDeBits = (unsigned char *)malloc(tamanoArchivo);   
    
    while (fread(&byte, sizeof(byte), 1, arch)) {
-      for (int i = 7 ; i >= 0 ; i-- ) {        
+      for (int i = 7 ; i >= 0 ; i--) {        
          bit = (byte >> i) & 1; 
-         arrayDeBits[posArchivo++]=bit;
+         arrayDeBits[posArchivo++] = bit;
          //printf("%d",bit);
          
-         if (bit == 0){
+         if (bit == 0) {
             cant0s++;
             if (bitAnterior == 0)
                cant00s++;
             else
                cant10s++;
+               //salio un 0 y antes un 1
          }
-         else{
+         else {
             cant1s++;
             if (bitAnterior == 0)
                cant01s++;
+               //salio un 1 y antes un 0
             else
                cant11s++;
          }           
@@ -105,22 +107,32 @@ void lee_archivo (char *nombre_archivo, int orden){
    }*/
    
    
-   entropia = prob0s*log2(1/prob0s)+ prob1s*log2(1/prob1s);
+   entropia = prob0s*log2(1/prob0s)+ prob1s*log2(1/prob1s);//*N? KKKKKKK
 
- /*printf("\n--orden 1--\n");
-   printf("La cantidad de 0 es: %d y su prob es: %.2f \n", cant0s,prob0s );
-   printf("La cantidad de 1 es: %d y su prob es: %.2f \n", cant1s, prob1s);*/
+   //printf("\n--orden 1--\n");
+   printf("La cantidad de 0 es: %d y su prob es: %.2f \n", cant0s,prob0s);
+   printf("La cantidad de 1 es: %d y su prob es: %.2f \n\n\n", cant1s, prob1s);
    printf("Probabilidades condicionales:\nLa cantidad de 00 es: %d y su prob es: %.2f \n", cant00s, prob00s);
    printf("La cantidad de 01 es: %d y su prob es: %.2f \n", cant01s, prob01s);
    printf("La cantidad de 10 es: %d y su prob es: %.2f \n", cant10s, prob10s);
    printf("La cantidad de 11 es: %d y su prob es: %.2f \n\n", cant11s, prob11s);
    int exponente = orden-1;
    int total=0;
-   if ( fabs(prob00s-prob10s) > tolerancia || fabs(prob01s-prob11s) > tolerancia){
+   if (fabs(prob00s-prob10s) > tolerancia || fabs(prob01s-prob11s) > tolerancia){
       printf("La fuente es memoria no nula y su entropia es: %.2f bits\n",entropia);
-      
+      // calculo del inciso D (vector estacionario)
+      // 1ero M-I
+      prob00s--;
+      prob11s--;
+      /*prob00s.X + prob01s.Y = 0
+        prob10s.X + prob11s.Y = 0
+                X + Y = 1
+      */
+      X = -1/((prob00s/prob10s) - 1);
+      Y = 1 - X;
+      printf("Vector estacionario: V = [%.2f;%.2f] \n",X,Y);
    }  
-   else{
+   else {
       printf("La fuente es memoria nula");
       printf(" y su entropia es: %.2f bits\n ",entropia);
       
