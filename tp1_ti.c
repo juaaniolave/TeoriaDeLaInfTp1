@@ -10,7 +10,7 @@ int main(int argc, char *argv[]) {
    
    char* extension_bin = ".bin";
    char *nombre_archivo=NULL;
-   int n=0;
+   int n=3;
 
 
    for (int i = 1; i < argc; i++) {
@@ -28,6 +28,7 @@ int main(int argc, char *argv[]) {
 }
 
 void lee_archivo (char *nombre_archivo, int orden){
+   //nombre_archivo = "tp1_sample4.bin"; orden=4;
    unsigned int cant1s  = 0;
    unsigned int cant0s  = 0;
    unsigned int cant00s  = 0;
@@ -43,7 +44,7 @@ void lee_archivo (char *nombre_archivo, int orden){
    int *miArray;
    int tamano = pow(2,orden);
    int posArray=0;
-  nombre_archivo = "tp1_sample8.bin";
+   
    FILE* arch = fopen(nombre_archivo,"rb");
    // Asignar memoria dinámica para el array
    miArray = (int *)malloc(tamano* sizeof(int));
@@ -134,7 +135,7 @@ void lee_archivo (char *nombre_archivo, int orden){
    }  
    else {
       printf("La fuente es memoria nula");
-      printf(" y su entropia es: %.2f bits\n ",entropia);
+      printf(" y su entropia es: %.2f bits\n",entropia);
       
       printf("Probabilidades de orden %d:\n",orden);
       int j=0;
@@ -152,9 +153,28 @@ void lee_archivo (char *nombre_archivo, int orden){
    }
    for(int i =0 ; i<tamano; i++){
       printBinaryWithLength(i,orden);
-      printf("%d\n",miArray[i]);
+      printf("%.4f\n",miArray[i]/(float)total);
    }
+   printf("\nCalculado con multiplicaciones:\n");
+   float probN=-1;
+   for (int k=0; k<pow(2,orden);k++){
+      int i=k;
+      if (probN>=0) 
+         printf(": %.4f\n",probN);
+      probN=1;
+      for (j=0; j<orden;j++){
+         if (i&1){
+            probN*=prob1s;
+         }
+         else {
+            probN*=prob0s;
+         }
+         printf("%d",(i&1));
+         i>>=1;
+      }
 
+   }
+   printf(": %.4f\n",probN);
    float entropiaSumada=0;
    for (int p=0; p<tamano; p++){
       if (miArray[p]!=0)
