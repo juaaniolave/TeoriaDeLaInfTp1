@@ -29,8 +29,8 @@ int main(int argc, char *argv[]) {
 
 void lee_archivo (char *nombre_archivo, int orden){
    //nombre_archivo = "tp1_sample4.bin"; orden=4;
-   unsigned int cant1s  = 0;
-   unsigned int cant0s  = 0;
+   unsigned int cant1s   = 0;
+   unsigned int cant0s   = 0;
    unsigned int cant00s  = 0;
    unsigned int cant01s  = 0;
    unsigned int cant10s  = 0;
@@ -38,12 +38,12 @@ void lee_archivo (char *nombre_archivo, int orden){
    float tolerancia = 0.05;
    unsigned int cantTot = 0;
    float prob0s, prob1s, prob00s, prob01s, prob10s, prob11s, entropia = 0, X, Y;
-   unsigned char byte, bit, bitAnterior=0;
+   unsigned char byte, bit, bitAnterior = -1;
    long tamanoArchivo;
-   long posArchivo=0;
+   long posArchivo = 0;
    int *miArray;
    int tamano = pow(2,orden);
-   int posArray=0;
+   int posArray = 0;
    
    FILE* arch = fopen(nombre_archivo,"rb");
    // Asignar memoria dinámica para el array
@@ -54,7 +54,6 @@ void lee_archivo (char *nombre_archivo, int orden){
       printf("No se pudo asignar memoria para el array.\n");
       exit(-1);
    }
-
 
    if (arch == NULL){
       printf("No se pudo abrir el archivo: %s\n",nombre_archivo);
@@ -78,7 +77,8 @@ void lee_archivo (char *nombre_archivo, int orden){
             if (bitAnterior == 0)
                cant00s++;
             else
-               cant10s++;
+               if (bitAnterior != -1)
+                  cant10s++;
                //salio un 0 y antes un 1
          }
          else {
@@ -87,17 +87,17 @@ void lee_archivo (char *nombre_archivo, int orden){
                cant01s++;
                //salio un 1 y antes un 0
             else
-               cant11s++;
-         }           
+               if (bitAnterior != -1)
+                  cant11s++;
+         }          
          cantTot++; 
          bitAnterior = bit;  
       }      
    }
 
-
    if (cantTot > 0) {
-      prob0s = cant0s/(float)cantTot;
-      prob1s = cant1s/(float)cantTot;
+      prob0s  = cant0s /(float)cantTot;
+      prob1s  = cant1s /(float)cantTot;
       prob00s = cant00s/(float)(cant00s + cant01s);
       prob01s = cant01s/(float)(cant00s + cant01s);
       prob10s = cant10s/(float)(cant10s + cant11s);
@@ -106,9 +106,8 @@ void lee_archivo (char *nombre_archivo, int orden){
  /*  for(int j=0; j<posArchivo; j++){
       printf("%d", arrayDeBits[j]);
    }*/
-   
-   
-   entropia = prob0s*log2(1/prob0s)+ prob1s*log2(1/prob1s);//*N? KKKKKKK
+
+   entropia = prob0s * log2(1/prob0s) + prob1s * log2(1/prob1s);
 
    //printf("\n--orden 1--\n");
    printf("La cantidad de 0 es: %d y su prob es: %.2f \n", cant0s,prob0s);
@@ -117,9 +116,9 @@ void lee_archivo (char *nombre_archivo, int orden){
    printf("La cantidad de 01 es: %d y su prob es: %.2f \n", cant01s, prob01s);
    printf("La cantidad de 10 es: %d y su prob es: %.2f \n", cant10s, prob10s);
    printf("La cantidad de 11 es: %d y su prob es: %.2f \n\n", cant11s, prob11s);
-   int exponente = orden-1;
-   int total=0;
-   if (fabs(prob00s-prob10s) > tolerancia || fabs(prob01s-prob11s) > tolerancia){
+   int exponente = orden - 1;
+   int total = 0;
+   if (fabs(prob00s-prob10s) > tolerancia || fabs(prob01s-prob11s) > tolerancia) {
       printf("La fuente es memoria no nula y su entropia es: %.2f bits\n",entropia);
       // calculo del inciso D (vector estacionario)
       // 1ero M-I
@@ -138,84 +137,73 @@ void lee_archivo (char *nombre_archivo, int orden){
       printf(" y su entropia es: %.2f bits\n",entropia);
       
       printf("Probabilidades de orden %d:\n",orden);
-      int j=0;
-      while (j < tamanoArchivo){
-         for (int k=j; j<k+orden;j++){
-            if (arrayDeBits[j]){
-               posArray+=pow(2,exponente);
-            }
+      int j = 0;
+      while (j < tamanoArchivo) {
+         for (int k = j; j < k + orden ; j++){
+            if (arrayDeBits[j]) 
+               posArray += pow(2,exponente);
             exponente--;
          }
          exponente = orden-1;
          total++;
          miArray[posArray]++;
-         posArray=0;
-   }
-   for(int i =0 ; i<tamano; i++){
-      printBinaryWithLength(i,orden);
-      printf("%.4f\n",miArray[i]/(float)total);
-   }
-   printf("\nCalculado con multiplicaciones:\n");
-   float probN=-1;
-   for (int k=0; k<pow(2,orden);k++){
-      int i=k;
-      if (probN>=0) 
-         printf(": %.4f\n",probN);
-      probN=1;
-      for (j=0; j<orden;j++){
-         if (i&1){
-            probN*=prob1s;
+         posArray = 0;
+      }
+      for(int i = 0 ; i < tamano ; i++) {
+         printBinaryWithLength(i,orden);
+         printf("%.4f\n",miArray[i]/(float)total);
+      }
+      printf("\nCalculado con multiplicaciones:\n");
+      float probN = -1;
+      for (int k = 0; k < pow(2,orden) ; k++) {
+         int i = k;
+         if (probN >= 0) 
+            printf(": %.4f\n",probN);
+         probN = 1;
+         for (j = 0; j < orden ; j++){
+            if (i & 1)
+               probN *= prob1s;
+            else 
+               probN *= prob0s;
+            printf("%d",(i & 1));
+            i >>= 1;
          }
-         else {
-            probN*=prob0s;
-         }
-         printf("%d",(i&1));
-         i>>=1;
+      }
+      printf(": %.4f\n",probN);
+      float entropiaSumada = 0;
+      for (int p = 0; p < tamano ; p++) {
+         if (miArray[p] != 0)
+            entropiaSumada += (miArray[p]/(float)total) * log2(total/(float)miArray[p]);
       }
 
+      printf("\n");
+      printf("Entropia de orden %d (orden*entropia): %.2f\n",orden, orden*entropia);
+      printf("Entropia de orden %d (sumatoria de probs): %.2f", orden, entropiaSumada);
    }
-   printf(": %.4f\n",probN);
-   float entropiaSumada=0;
-   for (int p=0; p<tamano; p++){
-      if (miArray[p]!=0)
-      entropiaSumada+=(miArray[p]/(float)total)*log2(total/(float)miArray[p]);
-   }
-
-
-   printf("\n");
-   printf("Entropia de orden %d (orden*entropia): %.2f\n",orden, orden*entropia);
-   printf("Entropia de orden %d (sumatoria de probs): %.2f", orden, entropiaSumada);
-
-
-
-   }
-   
-
    fclose(arch);
-
 }
+
 
 void printBinaryWithLength(int num, int length) {
     if (length <= 0) {
-        printf("Longitud inválida.\n");
-        return;
+       printf("Longitud inválida.\n");
+       return;
     }
 
     // Calcular el número mínimo de dígitos necesarios para representar num
     int minDigits = 1;
-    int absNum = abs(num);
-    while ((1 << minDigits) <= absNum) {
+    int absNum    = abs(num);
+
+    while ((1 << minDigits) <= absNum) 
         minDigits++;
-    }
 
     // Imprimir ceros a la izquierda si es necesario
-    for (int i = 0; i < length - minDigits; i++) {
-        printf("0");
-    }
+    for (int i = 0; i < length - minDigits; i++) 
+       printf("0");
 
     // Luego, imprimir los dígitos binarios
-    for (int i = minDigits - 1; i >= 0; i--) {
+    for (int i = minDigits - 1 ; i >= 0 ; i--) 
         printf("%d", (absNum >> i) & 1);
-    }
-   printf(": ");
+    
+    printf(": ");
 }
