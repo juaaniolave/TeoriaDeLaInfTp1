@@ -37,7 +37,8 @@ void lee_archivo (char *nombre_archivo, int orden){
    unsigned int cant11s  = 0;
    float tolerancia = 0.05;
    unsigned int cantTot = 0;
-   float prob0s, prob1s, prob00s, prob01s, prob10s, prob11s, entropia = 0, X, Y;
+   float prob0s, prob1s, prob00s, prob01s, prob10s, prob11s, entropia = 0, X, Y, entropiaNoNula=0;
+   
    unsigned char byte, bit, bitAnterior = -1;
    long tamanoArchivo;
    long posArchivo = 0;
@@ -108,7 +109,7 @@ void lee_archivo (char *nombre_archivo, int orden){
    }*/
 
    entropia = prob0s * log2(1/prob0s) + prob1s * log2(1/prob1s);
-   //jjjj
+
    //printf("\n--orden 1--\n");
    printf("La cantidad de 0 es: %d y su prob es: %.2f \n", cant0s,prob0s);
    printf("La cantidad de 1 es: %d y su prob es: %.2f \n\n\n", cant1s, prob1s);
@@ -118,25 +119,26 @@ void lee_archivo (char *nombre_archivo, int orden){
    printf("La cantidad de 11 es: %d y su prob es: %.2f \n\n", cant11s, prob11s);
    int exponente = orden - 1;
    int total = 0;
-   if (fabs(prob00s - prob10s) > tolerancia || fabs(prob01s - prob11s) > tolerancia) {
-      printf("La fuente es memoria no nula y su entropia es: %.2f bits\n",entropia);
+   if (fabs(prob00s - prob10s) > tolerancia || fabs(prob01s - prob11s) > tolerancia) {     
       // calculo del inciso D (vector estacionario)
       // 1ero M-I
-      prob00s--;
-      prob11s--;
       /*prob00s.X + prob01s.Y = 0
         prob10s.X + prob11s.Y = 0
                 X + Y = 1
       */
-      X = -1/((prob00s/prob10s) - 1);
+      X = -1/(((prob00s-1)/prob10s) - 1);
       Y = 1 - X;
+      entropiaNoNula = X*(prob00s*log2(1/prob00s)+prob01s*log2(1/prob01s));
+      entropiaNoNula += Y*((prob11s)*log2(1/prob11s)+prob10s*log2(1/prob10s));
+
+      printf("La fuente es memoria no nula y su entropia es: %.2f bits\n",entropiaNoNula);
       printf("Vector estacionario: V = [%.2f;%.2f] \n",X,Y);
    }  
    else {
       printf("La fuente es memoria nula");
       printf(" y su entropia es: %.2f bits\n",entropia);
       
-      printf("Probabilidades de orden %d:\n",orden);
+      printf("Probabilidades de orden %d (real):\n",orden);
       int j = 0;
       while (j < tamanoArchivo) {
          for (int k = j; j < k + orden ; j++){
@@ -153,7 +155,7 @@ void lee_archivo (char *nombre_archivo, int orden){
          printBinaryWithLength(i,orden);
          printf("%.4f\n",miArray[i]/(float)total);
       }
-      printf("\nCalculado con multiplicaciones:\n");
+      printf("\nCalculado con multiplicacion de probabilidades (teorico):\n");
       float probN = -1;
       for (int k = 0; k < pow(2,orden) ; k++) {
          int i = k;
@@ -178,7 +180,7 @@ void lee_archivo (char *nombre_archivo, int orden){
 
       printf("\n");
       printf("Entropia de orden %d (orden*entropia): %.2f\n",orden, orden*entropia);
-      printf("Entropia de orden %d (sumatoria de probs): %.2f", orden, entropiaSumada);
+      printf("Entropia de orden %d (sumatoria de entropias): %.2f", orden, entropiaSumada);
    }
    fclose(arch);
 }
