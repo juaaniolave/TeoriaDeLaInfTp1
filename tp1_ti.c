@@ -10,7 +10,7 @@ int main(int argc, char *argv[]) {
    
    char* extension_bin = ".bin";
    char *nombre_archivo=NULL;
-   int n=3;
+   int n = 3;
 
 
    for (int i = 1; i < argc; i++) {
@@ -118,7 +118,7 @@ void lee_archivo (char *nombre_archivo, int orden){
    printf("La cantidad de 11 es: %d y su prob es: %.2f \n\n", cant11s, prob11s);
    int exponente = orden - 1;
    int total = 0;
-   if (fabs(prob00s-prob10s) > tolerancia || fabs(prob01s-prob11s) > tolerancia) {
+   if (fabs(prob00s - prob10s) > tolerancia || fabs(prob01s - prob11s) > tolerancia) {
       printf("La fuente es memoria no nula y su entropia es: %.2f bits\n",entropia);
       // calculo del inciso D (vector estacionario)
       // 1ero M-I
