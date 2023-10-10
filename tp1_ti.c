@@ -108,7 +108,7 @@ void lee_archivo (char *nombre_archivo, int orden){
    }*/
 
    entropia = prob0s * log2(1/prob0s) + prob1s * log2(1/prob1s);
-
+   //jjjj
    //printf("\n--orden 1--\n");
    printf("La cantidad de 0 es: %d y su prob es: %.2f \n", cant0s,prob0s);
    printf("La cantidad de 1 es: %d y su prob es: %.2f \n\n\n", cant1s, prob1s);
