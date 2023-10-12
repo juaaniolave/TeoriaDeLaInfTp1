@@ -108,7 +108,7 @@ void lee_archivo (char *nombre_archivo, int orden){
       printf("%d", arrayDeBits[j]);
    }*/
 
-   entropia = prob0s * log2(1/prob0s) + prob1s * log2(1/prob1s);
+   //entropia = prob0s * log2(1/prob0s) + prob1s * log2(1/prob1s);
 
    //printf("\n--orden 1--\n");
    printf("La cantidad de 0 es: %d y su prob es: %.2f \n", cant0s,prob0s);
@@ -162,7 +162,7 @@ void lee_archivo (char *nombre_archivo, int orden){
          if (probN >= 0) 
             printf(": %.4f\n",probN);
          probN = 1;
-         for (j = 0; j < orden ; j++){
+         for (j = 0; j < orden ; j++) {
             if (i & 1)
                probN *= prob1s;
             else 
